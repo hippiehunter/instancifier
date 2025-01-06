@@ -1,0 +1,26 @@
+name: Test Release Only
+on: workflow_dispatch
+
+jobs:
+  test_release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Create dummy files
+      run: |
+        mkdir -p linux windows
+        echo "test" > linux/libinstancifier.so
+        echo "test" > windows/instancifier.dll
+        echo "test" > windows/instancifier.pdb
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          linux/libinstancifier.so
+          windows/instancifier.dll
+          windows/instancifier.pdb
+        tag_name: test-v0.0.1
