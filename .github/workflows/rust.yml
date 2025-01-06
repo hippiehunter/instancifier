@@ -42,7 +42,7 @@ jobs:
     needs: build
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
-    permissions:  # Add permissions block
+    permissions:
       contents: write
     steps:
     - uses: actions/checkout@v4
@@ -58,12 +58,11 @@ jobs:
         path: windows
 
     - name: Create Release
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        gh release create "${GITHUB_REF#refs/tags/}" \
-          --title "${GITHUB_REF#refs/tags/}" \
-          --notes "Release ${GITHUB_REF#refs/tags/}" \
-          linux/libinstancifier.so \
-          windows/instancifier.dll \
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          linux/libinstancifier.so
+          windows/instancifier.dll
           windows/instancifier.pdb
+        name: ${{ github.ref_name }}
+        tag_name: ${{ github.ref_name }}
