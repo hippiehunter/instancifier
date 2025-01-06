@@ -5,8 +5,10 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use sysinfo::{System};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::thread;
+use std::env;
 use log;
 use std::fs::File;
+use std::path::Path;
 use std::time::Duration;
 use once_cell::sync::Lazy;
 use simplelog::{WriteLogger, LevelFilter, Config};
@@ -350,11 +352,20 @@ pub extern "C" fn free_slot(slot: usize) -> i32{
 #[no_mangle]
 pub extern "C" fn find_available_slot() -> i32 {
     
-    WriteLogger::init(
-        LevelFilter::Info,
-        Config::default(),
-        File::create("app.log").unwrap()
-    ).unwrap();
+    if let Ok(log_path) = env::var("INSTANCIFIER_LOG_PATH") {
+
+        let file_path = Path::new(log_path.as_str());
+        if let Some(parent_dir) = file_path.parent() {
+            if parent_dir.exists() {
+                WriteLogger::init(
+                    LevelFilter::Info,
+                    Config::default(),
+                    File::create(log_path).unwrap()
+                ).unwrap();
+            } 
+        }
+    }
+    
     
     if let Err(e) = SlotAllocator::init_global() {
         log::info!("{:?}", e);
